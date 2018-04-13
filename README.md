@@ -4,6 +4,8 @@ This is the ggplot2 presentation for RaukR 2018 summer school. This repo contain
 
 The rendered HTML presentation can be viewed [here](https://royfrancis.github.io/raukr_ggplot/index.html).
 
+Press **P** to enter presenter view for slide notes.
+
 ---
 
 **2018** | Roy Francis
