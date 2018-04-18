@@ -740,11 +740,17 @@ we should have one value per year per state.
 ...
 ```
 
-The solution is to sum up all the cases for a state for all weeks within a year into one value for that year. This can be done using the `summarise()` function from package `dplyr`. The dots in state names are replaced by spaces and the words are converted to title case (First letter capital and rest lowercase). We also convert the column names to lowercase for consistency.
+The solution is to sum up all the cases for a state for all weeks within a year into one value for that year. This can be done using the `summarise()` function from package `dplyr`. 
+
+> * A custom function is used to sum over weeks. If all values are NA, then result is NA. If some values are NA, the NAs are removed and the remaining numbers are summed.
+> * The dots in state names are replaced by spaces and the words are converted to title case (First letter capital and rest lowercase). 
+> * We also convert the column names to lowercase for consistency.
 
 ```{r}
+fun1 <- function(x) ifelse(all(is.na(x)),NA,sum(x,na.rm=TRUE))
+
 me3 <- me2 %>% group_by(YEAR,state) %>% 
-                summarise(total=sum(value,na.rm=TRUE)) %>%
+                summarise(total=fun1(value)) %>%
                 mutate(state=str_replace_all(state,"[.]"," "),
                        state=str_to_title(state))
 colnames(me3) <- tolower(colnames(me3))
@@ -762,9 +768,8 @@ The data is now ready for plotting.
 We can build up a basic ggplot and heatmap tiles can be plotted using the geom `geom_tile`. 'year' is mapped to the x-axis, 'state' to the y-axis and fill color for the tiles is the 'total' value.
 
 ```{r,fig.height=6,fig.width=9}
-p <- ggplot(me3,aes(x=year,y=state,fill=total))+
-            geom_tile()
-p
+ggplot(me3,aes(x=year,y=state,fill=total))+
+       geom_tile()
 ```
 
 Add borders around the tiles. We use `reorder(state,desc(state))` to reverse the order of states so that it reads A-Z from top to bottom.
@@ -784,8 +789,7 @@ cols <- c("#e7f0fa","#c9e2f6","#95cbee","#0099dc","#4ab04a", "#ffd73e","#eec73a"
 
 p + scale_y_discrete(expand=c(0,0))+
     scale_x_continuous(expand=c(0,0),breaks=seq(1930,2010,by=10))+
-    scale_fill_gradientn(colors=cols,na.value="grey90")
-
+    scale_fill_gradientn(colors=cols,na.value="grey95")
 ```
 
 The fill scale can be further refined to resemble that of the original plot.
@@ -795,7 +799,7 @@ cols <- c("#e7f0fa","#c9e2f6","#95cbee","#0099dc","#4ab04a", "#ffd73e","#eec73a"
 
 p <- p+ scale_y_discrete(expand=c(0,0))+
         scale_x_continuous(expand=c(0,0),breaks=seq(1930,2010,by=10))+
-        scale_fill_gradientn(colors=cols,na.value="grey90",
+        scale_fill_gradientn(colors=cols,na.value="grey95",
                              limits=c(0,4000),
                              values=c(0,0.01,0.02,0.03,0.09,0.1,0.15,0.25,0.4,0.5,1),
                              labels=c("0k","1k","2k","3k","4k"),
@@ -844,6 +848,7 @@ Here we change the following aspects of the plot using `theme`:
 > * Set legend font to color grey20.
 > * Adjust size and justification of x and y axes text
 > * Adjust title justification
+> * Remove all gridlines
 
 ```{r,fig.height=6,fig.width=9}
   p+theme_minimal(base_family="Gidole")+
@@ -854,7 +859,8 @@ Here we change the following aspects of the plot using `theme`:
         axis.text.y=element_text(size=6,hjust=1,vjust=0.5),
         axis.text.x=element_text(size=8),
         axis.ticks.y=element_blank(),
-        title=element_text(hjust=-.07,vjust=1))
+        title=element_text(hjust=-.07,vjust=1),
+        panel.grid=element_blank())
 ```
 
 Our plot is ready and we can compare it to the original version.
@@ -867,12 +873,15 @@ The full code for this challenge is here:
 # read data
 me <- read.csv("ggplot_course_assets/data_wsj.csv",header=T,stringsAsFactors=F,skip=2)
 
+# custom summing function
+fun1 <- function(x) ifelse(all(is.na(x)),NA,sum(x,na.rm=TRUE))
+
 # tidy data
 me1 <- me %>% gather(key=state,value=value,-YEAR,-WEEK)
 me2 <- me1 %>% mutate(value=str_replace(value,"^-$",NA_character_),
                       value=as.numeric(value))
 me3 <- me2 %>% group_by(YEAR,state) %>% 
-                summarise(total=sum(value,na.rm=TRUE)) %>%
+                summarise(total=fun1(value)) %>%
                 mutate(state=str_replace_all(state,"[.]"," "),
                        state=str_to_title(state))
 colnames(me3) <- tolower(colnames(me3))
@@ -885,7 +894,7 @@ p <- ggplot(me3,aes(x=year,y=reorder(state,desc(state)),fill=total))+
       geom_tile(color="white",size=0.25)+
       scale_y_discrete(expand=c(0,0))+
       scale_x_continuous(expand=c(0,0),breaks=seq(1930,2010,by=10))+
-      scale_fill_gradientn(colors=cols,na.value="grey90",
+      scale_fill_gradientn(colors=cols,na.value="grey95",
                            limits=c(0,4000),
                            values=c(0,0.01,0.02,0.03,0.09,0.1,0.15,0.25,0.4,0.5,1),
                            labels=c("0k","1k","2k","3k","4k"),
@@ -906,7 +915,8 @@ p <- ggplot(me3,aes(x=year,y=reorder(state,desc(state)),fill=total))+
         axis.text.x=element_text(size=8),
         axis.ticks.y=element_blank(),
         panel.grid=element_blank(),
-        title=element_text(hjust=-.07,vjust=1))
+        title=element_text(hjust=-.07,vjust=1),
+        panel.grid=element_blank())
 
 ```
 
