@@ -1,10 +1,16 @@
-# RaukR ggplot2
+# RaukR ggplot
 
-This is the ggplot2 material for RaukR 2018 summer school. 
+This is the ggplot material for RaukR 2018 summer school. 
 
 The rendered HTML presentation and course can be accessed [here](https://royfrancis.github.io/raukr_ggplot/index.html).
 
-This repo contains the **.Rmd** source file and supporting files. The source files for presentation is contained inside the **presentation** directory. The source files for hands-on course is contained inside the **course** directory. The docs directory contains the rendered document and dependencies.
+## Directories
+
+* **presentation**: This repo contains the *.Rmd* source file and supporting files for ggplot presentation. 
+
+* **course**: This repo contains the *.Rmd* source file and supporting files for ggplot hands-on course work. 
+
+* **docs**: The docs directory contains the rendered *HTML* document and dependencies.
 
 ---
 
