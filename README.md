@@ -12,6 +12,10 @@ The rendered HTML presentation and course can be accessed [here](https://royfran
 
 * **docs**: Contains the rendered *HTML* document and dependencies.
 
+## Contact
+
+For corrections, comments or suggestions, feel free to submit a ticket on the Github [issues page](../../issues/).
+
 ---
 
 **2018** | Roy Francis
